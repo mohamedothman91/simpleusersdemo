@@ -76,8 +76,8 @@ class Auth extends CI_Controller
                                 'password' => md5(rand()),
                                 );
                 $inserdb = $this->UsersModel->insertdata($result);
-                $newdata['Is_logged_in'] = 'TRUE';
                 $newdata = $result;
+                $newdata['Is_logged_in'] = 'TRUE';
                 $this->session->set_userdata($newdata);
                 redirect('users', 'refresh');
             }
