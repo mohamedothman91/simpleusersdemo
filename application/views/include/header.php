@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>SB Admin - Start Bootstrap Template</title>
+    <title>User Demo</title>
     <!-- Bootstrap core CSS-->
     <link href="<?= base_url()?>vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom fonts for this template-->
@@ -23,4 +23,4 @@
     <script src="<?= base_url()?>vendor/jquery/jquery.min.js"></script>
 </head>
 
-<body class="bg-dark">
+<body class="fixed-nav sticky-footer bg-dark">
