@@ -53,11 +53,14 @@ class UsersModel extends CI_Model
         return $query ? true : false;
     }
 
-    public function login($mobile, $password)
+    public function login($email, $password, $google = false)
     {
         $this->db->from($this->tablename);
-        $this->db->where('email', $mobile);
-        $this->db->where('password', md5($password));
+        $this->db->where('email', $email);
+        if (!$google) {
+            $this->db->where('password', md5($password));
+        }
+
         $this->db->limit(1);
         $query = $this->db->get();
 

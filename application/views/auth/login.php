@@ -8,7 +8,7 @@
                 } elseif (isset($done)) {
                     echo '<div class="alert alert-success ">'.$done.'</div>';
                 }
-                $arrayattr = array('role'=>'form' , 'id'=>'validate');
+                $arrayattr = array('role' => 'form', 'id' => 'validate');
                 echo   form_open('Auth', $arrayattr);
 
             ?>
@@ -28,6 +28,7 @@
             </div>
             <button class="btn btn-primary btn-block" name="Login" value="Login" type="submit">Login</button>
 
+            <a class="btn btn-danger btn-block" href="<?= base_url().'auth/googlelogin'; ?>">Google +</a>
 
             <?php echo form_close(); ?>
 

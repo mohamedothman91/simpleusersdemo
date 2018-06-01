@@ -1,9 +1,9 @@
-<?php  if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
+<?php
+ if (!defined('BASEPATH')) {
+     exit('No direct script access allowed');
+ }
 
 // You can find dbforge usage examples here: http://ellislab.com/codeigniter/user-guide/database/forge.html
-
 
 class Migration_Create_users_table extends CI_Migration
 {
@@ -12,15 +12,15 @@ class Migration_Create_users_table extends CI_Migration
         parent::__construct();
         $this->load->dbforge();
     }
-    
+
     public function up()
     {
         $fields = array(
             'id' => array(
-                'type'=>'INT',
-                'constraint'=>11,
-                'unsigned'=>true,
-                'auto_increment' => true
+                'type' => 'INT',
+                'constraint' => 11,
+                'unsigned' => true,
+                'auto_increment' => true,
             ),
             'first_name' => array(
                     'type' => 'VARCHAR',
@@ -33,6 +33,7 @@ class Migration_Create_users_table extends CI_Migration
             'email' => array(
                     'type' => 'VARCHAR',
                     'constraint' => '100',
+                     'unique' => true,
             ),
             'password' => array(
                     'type' => 'VARCHAR',
@@ -57,13 +58,13 @@ class Migration_Create_users_table extends CI_Migration
             'phone' => array(
                     'type' => 'VARCHAR',
                     'constraint' => '30',
-            )
+            ),
         );
         $this->dbforge->add_field($fields);
         $this->dbforge->add_key('id', true);
         $this->dbforge->create_table('users', true);
     }
-    
+
     public function down()
     {
         $this->dbforge->drop_table('users', true);
