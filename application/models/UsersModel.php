@@ -76,7 +76,7 @@ class UsersModel extends CI_Model
         $CI = &get_instance();
         $is_logged_in = $CI->session->userdata('Is_logged_in');
         if (!isset($is_logged_in) || $is_logged_in != true) {
-            redirect('login', 'refresh');
+            redirect('/auth', 'refresh');
         }
     }
 
