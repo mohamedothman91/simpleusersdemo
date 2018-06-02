@@ -129,9 +129,7 @@ class Users extends REST_Controller
             // Send Mail verification
             $inserdb = $this->UsersModel->insertdata($result);
             if ($inserdb) {
-                $result['id'] = $this->db->insert_id();
-
-                $this->set_response($result, REST_Controller::HTTP_CREATED); // CREATED (201) being the HTTP response code
+                $this->set_response(['result' => 'ok'], REST_Controller::HTTP_OK);  // OK (200) being the HTTP response code
             } else {
                 $this->response(null, REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
             }
@@ -146,19 +144,19 @@ class Users extends REST_Controller
             $this->response(null, REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
         } else {
             $put = $this->put();
-            $password = $put['password'];
-            unset($put['password']);
+            if (isset($put['password'])) {
+                $result['password'] = md5($this->put('password'));
+                unset($put['password']);
+            }
             foreach ($put as $key => $value) {
                 $result[$key] = $value;
             }
             $where = ['id' => $put['id']];
-            if (!empty($password)) {
-                $result['password'] = md5($this->put('password'));
-            }
+
             $iupdatedb = $this->UsersModel->updatedata($where, $result);
             if ($iupdatedb) {
                 unset($result['password']);
-                $this->set_response($result, REST_Controller::HTTP_CREATED); // CREATED (201) being the HTTP response code
+                $this->set_response(['result' => 'ok'], REST_Controller::HTTP_OK);  // OK (200) being the HTTP response code
             } else {
                 $this->response(null, REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
             }
@@ -177,10 +175,7 @@ class Users extends REST_Controller
 
         $delete = $this->UsersModel->destroy(['id' => $id]);
 
-        $message = [
-            'id' => $id,
-            'message' => 'Deleted the resource',
-        ];
+        $message = ['result' => 'ok'];
         $this->set_response($message, REST_Controller::HTTP_OK); // NO_CONTENT (204) being the HTTP response code
     }
 }
