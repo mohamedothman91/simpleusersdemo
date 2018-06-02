@@ -45,7 +45,8 @@ git clone https://github.com/mohamedothman91/simpleusersdemo.git
    URL : {base_url}/simpleusersdemo/public/api/users
    METHOD : PUT
    Parameters : (required fields: id )
-                (optional fields: first name, last name, email and passowrd , company, title, address, country, city and phone)
+                (optional fields: first name, last name, email and passowrd , company,
+                 title, address, country, city and phone)
 </pre>
 <pre>
    Name : Delete User
