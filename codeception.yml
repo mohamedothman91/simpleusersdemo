@@ -6,7 +6,7 @@ suites:
         modules:
             enabled:
                 - REST:
-                    url: http://localhost/infosysta/public/api
+                    url: http://localhost/simpleusersdemo/public/api
                     depends: PhpBrowser
 
 paths:
