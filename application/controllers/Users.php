@@ -1,95 +1,41 @@
 <?php
 
-defined('BASEPATH') or exit('No direct script access allowed');
+if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
 
-// This can be removed if you use __autoload() in config.php OR use Modular Extensions
-require APPPATH.'/libraries/REST_Controller.php';
-
-/**
- * This is an example of a few basic user interaction methods you could use
- * all done with a hardcoded array.
- *
- * @category        Controller
- *
- * @author          Phil Sturgeon, Chris Kacerguis
- * @license         MIT
- *
- * @see            https://github.com/chriskacerguis/codeigniter-restserver
- */
-class Users extends REST_Controller
+class Users extends CI_Controller
 {
     public function __construct()
     {
-        // Construct the parent class
         parent::__construct();
+    }
 
-        // Configure limits on our controller methods
-        // Ensure you have created the 'limits' table and enabled 'limits' within application/config/rest.php
-        $this->methods['user_get']['limit'] = 500; // 500 requests per hour per user/key
-        $this->methods['user_post']['limit'] = 100; // 100 requests per hour per user/key
-        $this->methods['user_delete']['limit'] = 50; // 50 requests per hour per user/key
+    public function index()
+    {
         $this->load->model('UsersModel');
+        $data['users'] = $this->UsersModel->get_all();
+        $this->load->template('users/index', $data, [], true);
     }
 
-    public function index_get()
+    public function get($id)
     {
-        // Users from a data store e.g. database
-        $users = $this->UsersModel->get_all();
-
-        $id = $this->get('id');
-
-        // If the id parameter doesn't exist return all the users
-
-        if ($id === null) {
-            // Check if the users data store contains users (in case the database result returns NULL)
-            if ($users) {
-                // Set the response and exit
-                $this->response($users, REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
-            } else {
-                // Set the response and exit
-                $this->response([
-                    'status' => false,
-                    'error' => 'No users were found',
-                ], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
-            }
-        }
-
-        // Find and return a single record for a particular user.
-
-        $id = (int) $id;
-
-        // Validate the id.
-        if ($id <= 0) {
-            // Invalid id, set the response and exit.
-            $this->response(null, REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
-        }
-
-        // Get the user from the array, using the id as key for retreival.
-        // Usually a model is to be used for this.
-
-        $user = null;
-
-        if (!empty($users)) {
-            foreach ($users as $key => $value) {
-                if (isset($value['id']) && $value['id'] == $id) {
-                    $user = $value;
-                }
-            }
-        }
-
-        if (!empty($user)) {
-            $this->set_response($user, REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+        $id = intval($id);
+        if ($id != 0) {
+            $this->load->model('users_model');
+            $data['content'] = $this->users_model->get($id);
+            $this->load->template('users_view', $data);
         } else {
-            $this->set_response([
-                'status' => false,
-                'error' => 'User could not be found',
-            ], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+            redirect(site_url(), 'refresh');
         }
     }
 
-    public function index_post()
+    public function add()
     {
-        $config = array(
+        if ($this->input->post()) {
+            // `id`, `first_name`, `last_name`, `email`, `password`,
+            //  `company`, `title`, `address`, `city`, `phone`
+            $config = array(
                    array(
                        'field' => 'first_name',
                        'label' => 'First Name',
@@ -106,79 +52,135 @@ class Users extends REST_Controller
                        'field' => 'password',
                        'label' => 'Password',
                        'rules' => 'trim|required|xss_clean|min_length[5]',
+                    ), array(
+                        'field' => 'passconf',
+                        'label' => 'Password Confirmation',
+                       'rules' => 'trim|required|xss_clean|matches[password]',
                     ),
                     );
-        $this->form_validation->set_rules($config);
-        if ($this->form_validation->run() == false) {
-            $this->response($this->form_validation->error_array(), REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
-        } else {
-            // `id`, `first_name`, `last_name`, `email`, `password`,
-            //  `company`, `title`, `address`, `city`, `phone`
-            $result = array(
-                      'first_name' => $this->post('first_name'),
-                      'last_name' => $this->post('last_name'),
-                      'email' => $this->post('email'),
-                      'password' => md5($this->post('password')),
-                      'company' => ($this->post('company')) ? $this->post('company') : '',
-                      'title' => ($this->post('title')) ? $this->post('title') : '',
-                      'city' => ($this->post('city')) ? $this->post('city') : '',
-                      'phone' => ($this->post('phone')) ? $this->post('phone') : '',
-                      'address' => ($this->post('address')) ? $this->post('address') : '',
+            $this->form_validation->set_rules($config);
+            $this->form_validation->set_error_delimiters('<li>', '</li>');
+            if ($this->form_validation->run() == false) {
+                $data['error'] = validation_errors();
+            } else {
+                // `id`, `first_name`, `last_name`, `email`, `password`,
+                //  `company`, `title`, `address`, `city`, `phone`
+                $result = array(
+                      'first_name' => $this->input->post('first_name'),
+                      'last_name' => $this->input->post('last_name'),
+                      'email' => $this->input->post('email'),
+                      'password' => md5($this->input->post('password')),
+                      'company' => ($this->input->post('company')) ? $this->input->post('company') : '',
+                      'title' => ($this->input->post('title')) ? $this->input->post('title') : '',
+                      'city' => ($this->input->post('city')) ? $this->input->post('city') : '',
+                      'phone' => ($this->input->post('phone')) ? $this->input->post('phone') : '',
+                      'address' => ($this->input->post('address')) ? $this->input->post('address') : '',
                     );
 
-            // Send Mail verification
-            $inserdb = $this->UsersModel->insertdata($result);
-            if ($inserdb) {
-                $result['id'] = $this->db->insert_id();
-
-                $this->set_response($result, REST_Controller::HTTP_CREATED); // CREATED (201) being the HTTP response code
-            } else {
-                $this->response(null, REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
+                // Send Mail verification
+                $inserdb = $this->UsersModel->insertdata($result);
+                if ($inserdb) {
+                    $data['done'] = 'Thanks Data Saved Successfully';
+                } else {
+                    $data['error'] = 'Error In Save Data';
+                }
             }
         }
+        $data['title'] = 'Add New User';
+        $this->load->template('users/add', $data, [], true);
     }
 
-    public function index_put()
+    public function edit()
     {
-        $id = $this->put('id');
+        if ($this->uri->segment(3)) {
+            $id = $this->uri->segment(3);
+            $where = ['id' => $id];
+            if ($this->input->post('modify')) {
+                $config = array(
+                            array(
+                                'field' => 'first_name',
+                                'label' => 'First Name',
+                                'rules' => 'trim|required|xss_clean',
+                            ), array(
+                                'field' => 'last_name',
+                                'label' => 'Last Name',
+                                'rules' => 'trim|required|xss_clean',
+                            ), array(
+                                'field' => 'email',
+                                'label' => 'Email',
+                                'rules' => 'trim|required|xss_clean|valid_email',
+                            ),
+                          );
+                $password = $this->input->post('password');
+                if (!empty($password)) {
+                    array_push(
+                        $config,
+                                array(
+                                    'field' => 'password',
+                                    'label' => 'Password',
+                                    'rules' => 'trim|required|xss_clean|min_length[5]',
+                                 ),
+                                array(
+                                            'field' => 'passconf',
+                                            'label' => 'Password Confirmation',
+                                            'rules' => 'trim|required|xss_clean|matches[password]',
+                                        )
+                                    );
+                }
+                $this->form_validation->set_rules($config);
+                $this->form_validation->set_error_delimiters('<li>', '</li>');
+                if ($this->form_validation->run() == false) {
+                    $data['error'] = validation_errors();
+                } else {
+                    $result = array(
+                        'first_name' => $this->input->post('first_name'),
+                        'last_name' => $this->input->post('last_name'),
+                        'email' => $this->input->post('email'),
+                        'company' => ($this->input->post('company')) ? $this->input->post('company') : '',
+                        'title' => ($this->input->post('title')) ? $this->input->post('title') : '',
+                        'city' => ($this->input->post('city')) ? $this->input->post('city') : '',
+                        'phone' => ($this->input->post('phone')) ? $this->input->post('phone') : '',
+                        'address' => ($this->input->post('address')) ? $this->input->post('address') : '',
+                      );
 
-        if (!$id) {
-            $this->response(null, REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
+                    if (!empty($password)) {
+                        $result['password'] = md5($this->input->post('password'));
+                    }
+                    $iupdatedb = $this->UsersModel->updatedata($where, $result);
+                    if ($iupdatedb) {
+                        $data['done'] = 'Thanks Data Saved Successfully';
+                    } else {
+                        $data['error'] = 'Error In Save Data';
+                    }
+                }
+            }
+            $data['titel'] = 'Edit User';
+            $data['user'] = $this->UsersModel->getwhere($where)[0];
+            $this->load->template('users/edit', $data, [], true);
         } else {
-            $password = $this->put('password');
-            print_r($this->put());
-            die;
-            foreach ($this->put() as $key => $value) {
-            }
-
-            if (!empty($password)) {
-                $result['password'] = md5($this->put('password'));
-            }
-            $iupdatedb = $this->UsersModel->updatedata($where, $result);
-            if ($iupdatedb) {
-                $this->set_response($result, REST_Controller::HTTP_CREATED); // CREATED (201) being the HTTP response code
-            } else {
-                $this->response(null, REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
-            }
+            $this->session->set_flashdata('Error', 'Please Select a user to edit');
+            redirect('users', 'refresh');
         }
     }
 
-    public function index_delete()
+    public function delete()
     {
-        $id = $this->query('id');
-
-        // Validate the id.
-        if ($id <= 0) {
-            // Set the response and exit
-            $this->response(null, REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
+        if ($this->uri->segment(3)) {
+            $id = $this->uri->segment(3);
+            $delete = $this->UsersModel->destroy(['id' => $id]);
+            if (!$delete) {
+                $this->session->set_flashdata('Error', 'Error in delete please try again');
+                redirect('users', 'refresh');
+            } else {
+                $this->session->set_flashdata('Done', 'Thanks Delete Successfully');
+                redirect('users', 'refresh');
+            }
+        } else {
+            $this->session->set_flashdata('Error', 'Error in delete please try again');
+            redirect('users', 'refresh');
         }
-
-        $delete = $this->UsersModel->destroy(['id' => $id]);
-
-        $message = [
-            'id' => $id,
-            'message' => 'Deleted the resource',
-        ];
-        $this->set_response($message, REST_Controller::HTTP_OK); // NO_CONTENT (204) being the HTTP response code
     }
 }
+
+/* End of file '/Users.php' */
+/* Location: ./application/controllers//Users.php */
