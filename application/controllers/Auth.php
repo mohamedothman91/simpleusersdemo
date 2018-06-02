@@ -82,7 +82,7 @@ class Auth extends CI_Controller
                 redirect('users', 'refresh');
             }
         } else {
-            $redirect_uri = 'http://'.$_SERVER['HTTP_HOST'].'/infosysta/public/auth/oauth2callback';
+            $redirect_uri = 'http://'.$_SERVER['HTTP_HOST'].'/simpleusersdemo/public/auth/oauth2callback';
             header('Location: '.filter_var($redirect_uri, FILTER_SANITIZE_URL));
         }
     }
@@ -93,7 +93,7 @@ class Auth extends CI_Controller
 
         $client = new Google_Client();
         $client->setAuthConfig('client_secret_264501595144-a4mqjd0njvge8oj3ij1vlvo0ge8i6t24.apps.googleusercontent.com.json');
-        $client->setRedirectUri('http://'.$_SERVER['HTTP_HOST'].'/infosysta/public/auth/oauth2callback');
+        $client->setRedirectUri('http://'.$_SERVER['HTTP_HOST'].'/simpleusersdemo/public/auth/oauth2callback');
         $client->addScope([
             'https://www.googleapis.com/auth/plus.login',
             'https://www.googleapis.com/auth/plus.me',
